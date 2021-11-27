@@ -29,6 +29,7 @@ for i in range(2, 15):
 for i in range(0, len(url_list)):
     screenwriters_list = []
     genres_list = []
+    language_list = []
     
     plot_url_list.append(url_list[i] + plot_to_go)
     cast_url_list.append(url_list[i] + full_cast_to_go)
@@ -72,9 +73,16 @@ for i in range(0, len(url_list)):
     keywords_list = keywords_soup.find('table', attrs={'class' : 'evenWidthTable2Col'}).find_all('div', attrs={'class' : 'sodatext'})
 
     #idioma de la película
-    # language = soup.find_all('ul', attrs={'class' :'ipc-inline-list ipc-inline-list--show-dividers ipc-inline-list--inline ipc-metadata-list-item__list-content base'})[14].get_text()
-
+    language = soup.find('li', attrs={'data-testid': 'title-details-languages'}).find_all('a', attrs={'class': 'ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link'})
     # Mostramos todos los datos por pantalla para mostrar
+    for i in range(len(language)):
+        if(language[i].get_text() != "None"):
+            language_list.append(language[i].get_text())
+
+    #MIRAR POR QUÉ NO FUNCIONA EL IF
+    print('-----------------------------------')
+    print("Languages: " , language_list)
+
     for i in range(len(genres)):
         genres_list.append(genres[i].get_text())
     print("Genres ", genres_list)
@@ -90,21 +98,15 @@ for i in range(0, len(url_list)):
 
     if(original_title is not None):
         original_title = original_title.get_text().split(': ')
-        print(str(name_box) + " | original title: " + str(original_title[1]) + " | year: " + str(year) + " | rating: " + str(rating) + " | language: " + str(language))
+        print(str(name_box) + " | original title: " + str(original_title[1]) + " | year: " + str(year) + " | rating: " + str(rating))
         print("Director: " + str(director))
         print("ScreenWriters: " + str(screenwriters_list))
         print(plot)
     else:
-        print(str(name_box) + " | year: " + str(year) + " | rating: " + str(rating) + " | language: " + str(language))
+        print(str(name_box) + " | year: " + str(year) + " | rating: " + str(rating))
         print("director: " + str(director))
         print("screenwriters: " + str(screenwriters_list))
         print(plot)
-
-    
-    # print(name_box)
     
     print('-----------------------------------')
     
-# name_box = soup.find('h1', attrs={'class': 'TitleHeader__TitleText-sc-1wu6n3d-0 dxSWFG'}).get_text()
-# print(name_box)
-# '''print(soup.find_all(class_h1))'''
