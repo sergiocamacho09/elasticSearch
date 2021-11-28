@@ -16,8 +16,11 @@ url_http = "http://www.imdb.com/title/tt"
 plot_to_go = "/plotsummary?ref_=tt_ov_pl"
 full_cast_to_go = "/fullcredits?ref_=tt_ov_st_sm"
 keywords_to_go = "/keywords?ref_=tt_stry_kw"
-cast_list = []
-keywords_list = []
+
+
+# Variables para crear nuestro archivo JSON
+file = open("jsonFilms.json", "a")
+id = 0
 
 for i in range(2, 15):
     seed = page.cell(row = i, column = 1).value
@@ -27,9 +30,17 @@ for i in range(2, 15):
     
 
 for i in range(0, len(url_list)):
+    headerString = {
+        "index": {"_index": "films", "_id": id}
+    }
+
+    file.write(json.dumps(headerString))
+    file.write("\n")
     screenwriters_list = []
     genres_list = []
     language_list = []
+    cast_list = []
+    keywords_list = []
     
     plot_url_list.append(url_list[i] + plot_to_go)
     cast_url_list.append(url_list[i] + full_cast_to_go)
@@ -43,70 +54,95 @@ for i in range(0, len(url_list)):
     cast_soup = BeautifulSoup(response3.text, 'html.parser')
     keywords_soup = BeautifulSoup(respones4.text, 'html.parser')
 
-    # name_box = soup.title.string
     # Obtención del título en castellano
-    name_box = soup.find('h1', attrs={'data-testid': 'hero-title-block__title'}).get_text()
+    title = soup.find('h1', attrs={'data-testid': 'hero-title-block__title'}).get_text()
     # Obtención del título original (en su idioma original)
     original_title = soup.find('div', attrs={'data-testid': 'hero-title-block__original-title'})
 
     # Obtención de los generos de cada uno de las películas
     genres = soup.find('div', attrs={'data-testid': 'genres'}).find_all('span', attrs={'class': 'ipc-chip__text'})
   
-    
     # Obtención del año de estreno de cada una de las películas
     year = soup.find('span', attrs={'class': 'TitleBlockMetaData__ListItemText-sc-12ein40-2'}).get_text()
+
     #Obtención del rating de la película
     rating = soup.find('span', attrs={'class' :'AggregateRatingButton__RatingScore-sc-1ll29m0-1'}).get_text()
+
     #Obtemción del argumento de la pelicula (lo consultamos en una página a la que se nos redirecciona)
     plot = plot_soup.find('ul', attrs={'id' :'plot-summaries-content'}).find('p').get_text()
 
     # Obtención del reparto completo de la película (todos sus actores)
-    cast_list = cast_soup.find('table', attrs={'class': 'cast_list'}).find_all('td', attrs={'class': ''})
+    cast = cast_soup.find('table', attrs={'class': 'cast_list'}).find_all('td', attrs={'class': ''})
 
     # Obtención del director/es de la película
-    director = cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'})[0].find('td', attrs={'class' : 'name'}).get_text()
+    director = cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'})[0].find('td', attrs={'class' : 'name'}).get_text().replace("\n", "")
 
     #Obtencion de los guionistas de la pelicula
     screenwriters = cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'})[1].find_all('td', attrs={'class' : 'name'})
 
     #Palabras clave de la pelicula
-    keywords_list = keywords_soup.find('table', attrs={'class' : 'evenWidthTable2Col'}).find_all('div', attrs={'class' : 'sodatext'})
+    keywords = keywords_soup.find('table', attrs={'class' : 'evenWidthTable2Col'}).find_all('div', attrs={'class' : 'sodatext'})
 
     #idioma de la película
     language = soup.find('li', attrs={'data-testid': 'title-details-languages'}).find_all('a', attrs={'class': 'ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link'})
+    
     # Mostramos todos los datos por pantalla para mostrar
     for i in range(len(language)):
         if(language[i].get_text() != "None"):
             language_list.append(language[i].get_text())
 
-    #MIRAR POR QUÉ NO FUNCIONA EL IF
-    print('-----------------------------------')
-    print("Languages: " , language_list)
-
     for i in range(len(genres)):
         genres_list.append(genres[i].get_text())
-    print("Genres ", genres_list)
 
-    for i in range(len(cast_list)):
-        print(cast_list[i].get_text())
+    for i in range(len(cast)):
+        cast_list.append(cast[i].get_text().replace("\n", ""))
 
     for i in range(len(screenwriters)):
         screenwriters_list.append(screenwriters[i].get_text().replace("\n", ""))
 
-    for i in range(len(keywords_list)):
-        print(keywords_list[i].get_text())
+    for i in range(len(keywords)):
+        keywords_list.append(keywords[i].get_text().replace("\n", ""))
 
     if(original_title is not None):
         original_title = original_title.get_text().split(': ')
-        print(str(name_box) + " | original title: " + str(original_title[1]) + " | year: " + str(year) + " | rating: " + str(rating))
-        print("Director: " + str(director))
-        print("ScreenWriters: " + str(screenwriters_list))
-        print(plot)
+        jsonString = {
+            "title": title,
+            "originalTitle": original_title[1],
+            "genres": genres_list,
+            "year": year,
+            "rating": rating,
+            "plot": plot,
+            "director": director,
+            "cast": cast_list,
+            "screenwriters": screenwriters_list,
+            "keywords": keywords_list,
+            "language": language_list
+        }
+        
+        file.write(json.dumps(jsonString))
+        file.write("\n\n")
     else:
-        print(str(name_box) + " | year: " + str(year) + " | rating: " + str(rating))
-        print("director: " + str(director))
-        print("screenwriters: " + str(screenwriters_list))
-        print(plot)
+        jsonString = {
+            "title": title,
+            "originalTitle": "Ninguno",
+            "genres": genres_list,
+            "year": year,
+            "rating": rating,
+            "plot": plot,
+            "director": director,
+            "cast": cast_list,
+            "screenwriters": screenwriters_list,
+            "keywords": keywords_list,
+            "language": language_list
+         }
     
-    print('-----------------------------------')
+        file.write(json.dumps(jsonString))
+        file.write("\n\n")
+    
+    print('----PELÍCULA--------',id,'-----------INSERTADA EN EL JSON------------')
+    id += 1 
+    
+
+
+file.close()
     
