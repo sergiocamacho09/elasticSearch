@@ -2,12 +2,11 @@ from bs4 import BeautifulSoup
 import requests
 import openpyxl
 import json
+import math
 
 # Excel that que contains information of 40000 movies
 excel_document = openpyxl.load_workbook('MovieGenreIGC_v3.xlsx')
 page = excel_document.active
-# print(page['B2'].value)
-page.max_column
 url_list = []
 plot_url_list = []
 cast_url_list = []
@@ -20,9 +19,17 @@ keywords_to_go = "/keywords?ref_=tt_stry_kw"
 
 # Variables para crear nuestro archivo JSON
 file = open("jsonFilms.json", "a")
-id = 0
+# with open("jsonFilms.json") as f:
+#     numberOfJson = sum(1 for line in f)
+id = 59
+# print(numberOfJson)
+# # Contador que comienza en la primera línea del archivo excel
+# if(numberOfJson == 0):
+#     counter = 2
+# else:
+#     counter = math.ceil(numberOfJson/3)
 
-for i in range(2, 15):
+for i in range(61, (page.max_row + 1)):
     seed = page.cell(row = i, column = 1).value
     full_seed = str(seed).zfill(7)
     full_url = url_http + full_seed 
@@ -81,8 +88,10 @@ for i in range(0, len(url_list)):
     screenwriters = cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'})[1].find_all('td', attrs={'class' : 'name'})
 
     #Palabras clave de la pelicula
-    keywords = keywords_soup.find('table', attrs={'class' : 'evenWidthTable2Col'}).find_all('div', attrs={'class' : 'sodatext'})
-
+    if((keywords_soup.find('table', attrs={'class' : 'evenWidthTable2Col'})) is not None):
+        keywords = keywords_soup.find('table', attrs={'class' : 'evenWidthTable2Col'}).find_all('div', attrs={'class' : 'sodatext'})
+    else:
+        keywords = []
     #idioma de la película
     language = soup.find('li', attrs={'data-testid': 'title-details-languages'}).find_all('a', attrs={'class': 'ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link'})
     
@@ -100,6 +109,7 @@ for i in range(0, len(url_list)):
     for i in range(len(screenwriters)):
         screenwriters_list.append(screenwriters[i].get_text().replace("\n", ""))
 
+    
     for i in range(len(keywords)):
         keywords_list.append(keywords[i].get_text().replace("\n", ""))
 
