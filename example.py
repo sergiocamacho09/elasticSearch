@@ -21,7 +21,7 @@ keywords_to_go = "/keywords?ref_=tt_stry_kw"
 file = open("jsonFilms.json", "a")
 # with open("jsonFilms.json") as f:
 #     numberOfJson = sum(1 for line in f)
-id = 141
+id = 138
 # print(numberOfJson)
 # # Contador que comienza en la primera línea del archivo excel
 # if(numberOfJson == 0):
@@ -29,11 +29,12 @@ id = 141
 # else:
 #     counter = math.ceil(numberOfJson/3)
 
-for i in range(143, (page.max_row + 1)):
+for i in range(140, (page.max_row + 1)):
     seed = page.cell(row = i, column = 1).value
     full_seed = str(seed).zfill(7)
-    full_url = url_http + full_seed 
-    url_list.append(full_url)
+    full_url = url_http + full_seed
+    if(full_url not in url_list): 
+        url_list.append(full_url)
     
 
 for i in range(0, len(url_list)):
