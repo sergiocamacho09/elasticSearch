@@ -21,7 +21,7 @@ keywords_to_go = "/keywords?ref_=tt_stry_kw"
 file = open("jsonFilms.json", "a")
 # with open("jsonFilms.json") as f:
 #     numberOfJson = sum(1 for line in f)
-id = 59
+id = 141
 # print(numberOfJson)
 # # Contador que comienza en la primera línea del archivo excel
 # if(numberOfJson == 0):
@@ -29,7 +29,7 @@ id = 59
 # else:
 #     counter = math.ceil(numberOfJson/3)
 
-for i in range(61, (page.max_row + 1)):
+for i in range(143, (page.max_row + 1)):
     seed = page.cell(row = i, column = 1).value
     full_seed = str(seed).zfill(7)
     full_url = url_http + full_seed 
@@ -79,8 +79,10 @@ for i in range(0, len(url_list)):
     plot = plot_soup.find('ul', attrs={'id' :'plot-summaries-content'}).find('p').get_text()
 
     # Obtención del reparto completo de la película (todos sus actores)
-    cast = cast_soup.find('table', attrs={'class': 'cast_list'}).find_all('td', attrs={'class': ''})
-
+    if((cast_soup.find('table', attrs={'class': 'cast_list'})) is not None):
+        cast = cast_soup.find('table', attrs={'class': 'cast_list'}).find_all('td', attrs={'class': ''})
+    else:
+        cast = []
     # Obtención del director/es de la película
     director = cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'})[0].find('td', attrs={'class' : 'name'}).get_text().replace("\n", "")
 
