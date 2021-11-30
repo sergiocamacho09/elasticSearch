@@ -21,7 +21,8 @@ keywords_to_go = "/keywords?ref_=tt_stry_kw"
 file = open("jsonFilms.json", "a")
 # with open("jsonFilms.json") as f:
 #     numberOfJson = sum(1 for line in f)
-id = 138
+id = 3617
+counter = id + 58
 # print(numberOfJson)
 # # Contador que comienza en la primera línea del archivo excel
 # if(numberOfJson == 0):
@@ -29,14 +30,14 @@ id = 138
 # else:
 #     counter = math.ceil(numberOfJson/3)
 
-for i in range(140, (page.max_row + 1)):
+for i in range(counter, (page.max_row + 1)):
     seed = page.cell(row = i, column = 1).value
     full_seed = str(seed).zfill(7)
     full_url = url_http + full_seed
     if(full_url not in url_list): 
         url_list.append(full_url)
     
-
+print(len(url_list))
 for i in range(0, len(url_list)):
     headerString = {
         "index": {"_index": "films", "_id": id}
@@ -63,21 +64,36 @@ for i in range(0, len(url_list)):
     keywords_soup = BeautifulSoup(respones4.text, 'html.parser')
 
     # Obtención del título en castellano
-    title = soup.find('h1', attrs={'data-testid': 'hero-title-block__title'}).get_text()
+    if((soup.find('h1', attrs={'data-testid': 'hero-title-block__title'})) is not None):
+        title = soup.find('h1', attrs={'data-testid': 'hero-title-block__title'}).get_text()
+    else:
+        title = ""
     # Obtención del título original (en su idioma original)
     original_title = soup.find('div', attrs={'data-testid': 'hero-title-block__original-title'})
 
     # Obtención de los generos de cada uno de las películas
-    genres = soup.find('div', attrs={'data-testid': 'genres'}).find_all('span', attrs={'class': 'ipc-chip__text'})
+    if((soup.find('div', attrs={'data-testid': 'genres'})) is not None):
+        genres = soup.find('div', attrs={'data-testid': 'genres'}).find_all('span', attrs={'class': 'ipc-chip__text'})
+    else:
+        genres = []
   
     # Obtención del año de estreno de cada una de las películas
-    year = soup.find('span', attrs={'class': 'TitleBlockMetaData__ListItemText-sc-12ein40-2'}).get_text()
+    if((soup.find('span', attrs={'class': 'TitleBlockMetaData__ListItemText-sc-12ein40-2'})) is not None):
+        year = soup.find('span', attrs={'class': 'TitleBlockMetaData__ListItemText-sc-12ein40-2'}).get_text()
+    else:
+        year = ""
 
     #Obtención del rating de la película
-    rating = soup.find('span', attrs={'class' :'AggregateRatingButton__RatingScore-sc-1ll29m0-1'}).get_text()
+    if((soup.find('span', attrs={'class' :'AggregateRatingButton__RatingScore-sc-1ll29m0-1'})) is not None):
+        rating = soup.find('span', attrs={'class' :'AggregateRatingButton__RatingScore-sc-1ll29m0-1'}).get_text()
+    else:
+        rating = ""
 
     #Obtemción del argumento de la pelicula (lo consultamos en una página a la que se nos redirecciona)
-    plot = plot_soup.find('ul', attrs={'id' :'plot-summaries-content'}).find('p').get_text()
+    if((plot_soup.find('ul', attrs={'id' :'plot-summaries-content'})) is not None):
+        plot = plot_soup.find('ul', attrs={'id' :'plot-summaries-content'}).find('p').get_text()
+    else:
+        plot = ""
 
     # Obtención del reparto completo de la película (todos sus actores)
     if((cast_soup.find('table', attrs={'class': 'cast_list'})) is not None):
@@ -88,16 +104,21 @@ for i in range(0, len(url_list)):
     director = cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'})[0].find('td', attrs={'class' : 'name'}).get_text().replace("\n", "")
 
     #Obtencion de los guionistas de la pelicula
-    screenwriters = cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'})[1].find_all('td', attrs={'class' : 'name'})
-
+    if(len(cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'})) > 1):
+        screenwriters = cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'})[1].find_all('td', attrs={'class' : 'name'})
+    else:
+        screenwriters = []
+        
     #Palabras clave de la pelicula
     if((keywords_soup.find('table', attrs={'class' : 'evenWidthTable2Col'})) is not None):
         keywords = keywords_soup.find('table', attrs={'class' : 'evenWidthTable2Col'}).find_all('div', attrs={'class' : 'sodatext'})
     else:
         keywords = []
     #idioma de la película
-    language = soup.find('li', attrs={'data-testid': 'title-details-languages'}).find_all('a', attrs={'class': 'ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link'})
-    
+    if((soup.find('li', attrs={'data-testid': 'title-details-languages'})) is not None):
+        language = soup.find('li', attrs={'data-testid': 'title-details-languages'}).find_all('a', attrs={'class': 'ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link'})
+    else:
+        language = []
     # Mostramos todos los datos por pantalla para mostrar
     for i in range(len(language)):
         if(language[i].get_text() != "None"):
@@ -117,7 +138,7 @@ for i in range(0, len(url_list)):
         keywords_list.append(keywords[i].get_text().replace("\n", ""))
 
     if(original_title is not None):
-        original_title = original_title.get_text().split(': ')
+        original_title = original_title.get_text().split('Original title: ')
         jsonString = {
             "title": title,
             "originalTitle": original_title[1],
