@@ -21,8 +21,8 @@ keywords_to_go = "/keywords?ref_=tt_stry_kw"
 file = open("jsonFilms.json", "a")
 # with open("jsonFilms.json") as f:
 #     numberOfJson = sum(1 for line in f)
-id = 5000
-counter = id + 77
+id = 15767
+counter = id + 160
 # print(numberOfJson)
 # # Contador que comienza en la primera línea del archivo excel
 # if(numberOfJson == 0):
@@ -100,9 +100,11 @@ for i in range(0, len(url_list)):
         cast = cast_soup.find('table', attrs={'class': 'cast_list'}).find_all('td', attrs={'class': ''})
     else:
         cast = []
-    # Obtención del director/es de la película
-    director = cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'})[0].find('td', attrs={'class' : 'name'}).get_text().replace("\n", "")
-
+    # Obtención del director/es de la 
+    if(len((cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'}))) != 0):
+        director = cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'})[0].find('td', attrs={'class' : 'name'}).get_text().replace("\n", "")
+    else:
+        director = ""
     #Obtencion de los guionistas de la pelicula
     if(len(cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'})) > 1):
         screenwriters = cast_soup.find_all('table', attrs={'class' : 'simpleCreditsTable'})[1].find_all('td', attrs={'class' : 'name'})
