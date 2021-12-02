@@ -21,8 +21,8 @@ keywords_to_go = "/keywords?ref_=tt_stry_kw"
 file = open("jsonFilms.json", "a")
 # with open("jsonFilms.json") as f:
 #     numberOfJson = sum(1 for line in f)
-id = 15767
-counter = id + 160
+id = 29171
+counter = id + 598
 # print(numberOfJson)
 # # Contador que comienza en la primera línea del archivo excel
 # if(numberOfJson == 0):
